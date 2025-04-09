@@ -1,0 +1,12 @@
+om
+snowsql -a WQBSYUO-PU72483 -u chan -d FLIGHTS -s MAIN   
+CREATE TABLE AIR_IRCTC( flight_id VARCHAR NOT NULL, airline VARCHAR, whe DATE NOT NULL, dept TIME NOT NULL, from VARCHAR, from_code VARCHAR, arrival time, toooo VARCHAR, to_code VARCHAR, duration VARCHAR, stops INT, price DOUBLE, PRIMART KEY(flight_id,whe,dept));
+
+CREATE TABLE EASEMYTRIP( flight_id VARCHAR NOT NULL, airline VARCHAR, whe DATE NOT NULL, dept TIME NOT NULL, from VARCHAR, from_code VARCHAR, arrival time, toooo VARCHAR, to_code VARCHAR, duration VARCHAR, stops INT, price DOUBLE, PRIMART KEY(flight_id,whe,dept));
+
+CREATE TABLE MAGIC_FARES( flight_id VARCHAR NOT NULL, airline VARCHAR, whe DATE NOT NULL, dept TIME NOT NULL, from VARCHAR, from_code VARCHAR, arrival time, toooo VARCHAR, to_code VARCHAR, duration VARCHAR, stops INT, price DOUBLE, PRIMART KEY(flight_id,whe,dept));
+
+CREATE TABLE AIRLINE_IMG(name VARCHAR PRIMARY KEY, url VARCHAR);
+
+
+CREATE TABLE FSCHEDULE(flight_id VARCHAR NOT NULL, airline VARCHAR, whe DATE NOT NULL, dept TIME NOT NULL, from VARCHAR, from_code VARCHAR, arrival time, toooo VARCHAR, to_code VARCHAR, duration VARCHAR, stops INT, ai_price DOUBLE, mf_price DOUBLE,emt_price DOUBLE, PRIMART KEY(flight_id,whe,dept));

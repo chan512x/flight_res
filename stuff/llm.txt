@@ -1,0 +1,594 @@
+<header class="bg-white shadow-sm">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <div class="flex lg:flex-1">
+        <a href="#" class="-m-1.5 p-1.5">
+            <div class="flex flex-row items-center">
+              <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=blue&shade=500" alt="">
+              <span class="font-bold text-gray-900 ml-1">Sky</span>
+              <span class="font-bold text-blue-700">Scraper</span>
+            </div>
+        </a>
+      </div>
+      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+        <a href="#" class="text-sm font-semibold text-gray-900 hover:text-blue-700 transition-colors">
+          Log Out <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </nav>
+</header>
+
+<div class="mt-4 flex flex-col">
+    <div class="mt-2 flex flex-row justify-center">
+      <form (ngSubmit)="onSubmit()" class="w-full max-w-2xl">
+        <div class="inline-flex rounded-md shadow-md" role="group">
+          <div class="inline-flex items-center w-[140px] rounded-l-3xl bg-white">
+            <input [(ngModel)]="fro" type="text" name="from" class="w-full px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="From"/>
+          </div>
+          <div class="inline-flex items-center w-[140px] bg-white">
+            <input [(ngModel)]="to" type="text" name="to" class="w-full px-4 py-2 text-sm font-medium text-gray-900 bg-white border-y border-r-0 border-l-0 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent" placeholder="To"/>
+          </div>
+          <div class="inline-flex items-center w-[140px] bg-white">
+            <input [(ngModel)]="date" type="date" name="date" class="w-full px-4 py-2 text-sm font-medium text-gray-900 bg-white border-y border-r-0 border-l-0 border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"/>
+          </div>
+          <div class="inline-flex items-center bg-white rounded-r-3xl">
+            <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-r-3xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+              Search
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+
+    <!-- Loading Spinner -->
+    <div *ngIf="isLoading" class="flex justify-center items-center my-8">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
+      <span class="ml-3 text-blue-600 font-medium">Finding best flights...</span>
+    </div>
+
+    <div class="flex relative mt-6" *ngIf="!isLoading">
+      <!-- Filters Section - Enhanced -->
+      <div class="w-64 bg-white rounded-lg shadow-md border border-gray-100 mr-6">
+        <div class="p-4 border-b border-gray-100">
+          <h3 class="text-lg font-bold text-gray-800 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filters
+          </h3>
+        </div>
+        
+        <div class="p-4 border-b border-gray-100">
+          <h4 class="font-medium mb-3 text-gray-700 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Airlines
+          </h4>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between hover:bg-blue-50 p-1 rounded transition-colors" *ngFor="let entry of tairlines | keyvalue">
+              <div class="flex items-center">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out" (change)="onCheckBoxChange(entry.key,$event)" [checked]="ischecked(entry.key)" />
+                <span class="ml-2 text-sm text-gray-700">{{entry.key}}</span>
+              </div>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{entry.value}}</span>
+            </label>
+          </div>
+        </div>
+        
+        <div class="p-4">
+          <h4 class="font-medium mb-3 text-gray-700 flex items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Flight Times
+          </h4>
+          
+          <h6 class="text-xs font-medium text-gray-500 uppercase mt-3 mb-1">Departures</h6>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between hover:bg-blue-50 p-1 rounded transition-colors" *ngFor="let i of [1, 2, 3, 4]">
+              <div class="flex items-center">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out" (change)="onCheckBoxChange1(i.toString(),$event)" [checked]="ischecked1(i.toString())" />
+                <span class="ml-2 text-sm text-gray-700">
+                  <ng-container *ngIf="i==1">00:00 - 05:59</ng-container>
+                  <ng-container *ngIf="i==2">06:00 - 11:59</ng-container>
+                  <ng-container *ngIf="i==3">12:00 - 17:59</ng-container>
+                  <ng-container *ngIf="i==4">18:00 - 23:59</ng-container>
+                </span>
+              </div>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{tdur1[i]}}</span>
+            </label>
+          </div>
+          
+          <h6 class="text-xs font-medium text-gray-500 uppercase mt-4 mb-1">Arrivals</h6>
+          <div class="space-y-2">
+            <label class="flex items-center justify-between hover:bg-blue-50 p-1 rounded transition-colors" *ngFor="let i of [1, 2, 3, 4]">
+              <div class="flex items-center">
+                <input type="checkbox" class="form-checkbox h-4 w-4 text-blue-600 transition duration-150 ease-in-out" (change)="onCheckBoxChange2(i.toString(),$event)" [checked]="ischecked2(i.toString())" />
+                <span class="ml-2 text-sm text-gray-700">
+                  <ng-container *ngIf="i==1">00:00 - 05:59</ng-container>
+                  <ng-container *ngIf="i==2">06:00 - 11:59</ng-container>
+                  <ng-container *ngIf="i==3">12:00 - 17:59</ng-container>
+                  <ng-container *ngIf="i==4">18:00 - 23:59</ng-container>
+                </span>
+              </div>
+              <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">{{tdur2[i]}}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Section -->
+      <div class="flex-1">
+        <!-- Sort Buttons - Enhanced -->
+        <div class="mb-4 flex items-center">
+          <span class="text-sm text-gray-500 mr-3">Sort by:</span>
+          <div class="inline-flex rounded-md shadow-sm" role="group">
+            <button (click)="sortRes('price')" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-l-lg transition-all focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+              [ngClass]="{'bg-blue-600 text-white hover:bg-blue-700': sortBy === 'price', 'bg-white text-gray-700 hover:bg-blue-50': sortBy !== 'price'}">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Price
+              </div>
+            </button>
+            <button (click)="sortRes('duration')" class="px-4 py-2 text-sm font-medium border border-gray-200 rounded-r-lg transition-all focus:z-10 focus:ring-2 focus:ring-blue-500 focus:outline-none" 
+              [ngClass]="{'bg-blue-600 text-white hover:bg-blue-700': sortBy === 'duration', 'bg-white text-gray-700 hover:bg-blue-50': sortBy !== 'duration'}">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Duration
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <!-- Flight Results -->
+        <div class="mt-3 space-y-4">
+          <div *ngFor="let res of results; let i = index">
+            <div class="flex justify-between mb-4 transition-transform hover:scale-[1.01]" *ngIf="sairlines.has(res.airline) && sdur1.has(tact1[i]) && sdur2.has(tact2[i])">
+              <!-- Flight Info Card -->
+              <div class="flex-grow max-w-3xl bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                <div class="p-4">
+                  <!-- Flexible Ticket Badge -->
+                  <div class="w-auto inline-block px-3 py-1 bg-green-50 rounded-full mb-3" *ngIf="res.flex=='1'">
+                    <span class="flex items-center text-xs text-green-700">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      Flexible ticket upgrade available
+                    </span>
+                  </div>
+                  
+                  <!-- Flight Details -->
+                  <div class="flex items-center">
+                    <!-- Airline Logo -->
+                    <div class="flex flex-col items-center w-20">
+                      <img src="{{res.img}}" class="w-10 h-10 mb-1" alt="{{res.airline}} logo"/>
+                      <span class="text-xs text-gray-600 text-center">{{res.airline}}</span>
+                    </div>
+                    
+                    <!-- Departure Details -->
+                    <div class="flex flex-col mx-4 w-32">
+                      <div class="font-bold text-lg">{{res.dept_time}}</div>
+                      <div class="text-xs text-gray-600">{{res.from}} � {{res.dept_date}}</div>
+                      <div class="mt-3 text-xs">
+                        <span class="text-gray-500">Air_Irctc:</span>
+                        <span *ngIf="res.ai_price" class="font-semibold ml-1">?{{res.ai_price}}</span>
+                        <span *ngIf="!res.ai_price" class="text-gray-400 ml-1">-</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Flight Duration -->
+                    <div class="flex flex-col items-center mx-4 flex-grow">
+                      <img src="fmap.JPG" alt="Flight path" class="w-32 h-6"/>
+                      <span class="text-xs text-gray-500 mt-1">{{res.duration}}</span>
+                      <div class="mt-3 text-xs">
+                        <span class="text-gray-500">Easemytrip:</span>
+                        <span *ngIf="res.emt_price" class="font-semibold ml-1">?{{res.emt_price}}</span>
+                        <span *ngIf="!res.emt_price" class="text-gray-400 ml-1">-</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Arrival Details -->
+                    <div class="flex flex-col mx-4 w-32">
+                      <div class="font-bold text-lg">{{res.arriv_time}}</div>
+                      <div class="text-xs text-gray-600">{{res.to}} � {{res.arriv_date}}</div>
+                      <div class="mt-3 text-xs">
+                        <span class="text-gray-500">Magic Fares:</span>
+                        <span *ngIf="res.mf_price" class="font-semibold ml-1">?{{res.mf_price}}</span>
+                        <span *ngIf="!res.mf_price" class="text-gray-400 ml-1">-</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Price & Baggage Card -->
+              <div class="ml-4 w-64 bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col justify-between p-4">
+                <!-- Baggage Allowance -->
+                <div class="flex justify-end space-x-2">
+                  <div *ngIf="res.bag[0]=='1'" class="flex flex-col items-center">
+                    <svg class="w-6 h-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 12.75H9a1.76 1.76 0 0 0-1.75 1.75v4A1.76 1.76 0 0 0 9 20.25h6a1.76 1.76 0 0 0 1.75-1.75v-4A1.76 1.76 0 0 0 15 12.75m-6 1.5h6a.25.25 0 0 1 .25.25v.62h-6.5v-.62a.25.25 0 0 1 .25-.25m6 4.5H9a.25.25 0 0 1-.25-.25v-1.88h3.5v.26a.75.75 0 0 0 1.5 0v-.26h1.5v1.88a.25.25 0 0 1-.25.25m.69-14.33a3.73 3.73 0 0 0-7.38 0A4.74 4.74 0 0 0 4.75 9v11.5A2.25 2.25 0 0 0 7 22.75h10a2.25 2.25 0 0 0 2.25-2.25V9a4.74 4.74 0 0 0-3.56-4.58M12 2.75a2.24 2.24 0 0 1 2.11 1.5H9.89A2.24 2.24 0 0 1 12 2.75m5.75 17.75a.76.76 0 0 1-.75.75H7a.76.76 0 0 1-.75-.75V9A3.26 3.26 0 0 1 9.5 5.75h5A3.26 3.26 0 0 1 17.75 9z"></path></svg>
+                    <svg class="w-3 h-3 text-green-600 -mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12C23.992 5.376 18.624.008 12 0m6.927 8.2-6.845 9.289a1.01 1.01 0 0 1-1.43.188l-4.888-3.908a1 1 0 0 1 1.25-1.562l4.076 3.261 6.227-8.451a1 1 0 1 1 1.61 1.183"></path></svg>
+                  </div>
+                  <div *ngIf="res.bag[0]=='2' || res.bag[1]=='2'" class="flex flex-col items-center">
+                    <svg class="w-6 h-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 14.75H9a.75.75 0 0 1 0-1.5h6a.75.75 0 0 1 0 1.5m.75 3.25a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m3-6.5v9a2.25 2.25 0 0 1-2.25 2.25h-.75v.5a.75.75 0 0 1-1.5 0v-.5h-4.5v.5a.75.75 0 0 1-1.5 0v-.5H7.5a2.25 2.25 0 0 1-2.25-2.25v-9A2.25 2.25 0 0 1 7.5 9.25h1.75v-8C9.25.56 9.81 0 10.5 0h3c.69 0 1.25.56 1.25 1.25v8h1.75a2.25 2.25 0 0 1 2.25 2.25m-8-2.25h2.5V1.5h-2.5zm6.5 2.25a.76.76 0 0 0-.75-.75h-9a.76.76 0 0 0-.75.75v9a.76.76 0 0 0 .75.75h9a.76.76 0 0 0 .75-.75z"></path></svg>
+                    <svg class="w-3 h-3 text-green-600 -mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12C23.992 5.376 18.624.008 12 0m6.927 8.2-6.845 9.289a1.01 1.01 0 0 1-1.43.188l-4.888-3.908a1 1 0 0 1 1.25-1.562l4.076 3.261 6.227-8.451a1 1 0 1 1 1.61 1.183"></path></svg>
+                  </div>
+                  <div *ngIf="res.bag[0]=='3' || res.bag[1]=='3' || res.bag[2]=='3'" class="flex flex-col items-center">
+                    <svg class="w-6 h-6 text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 9.25H9a.75.75 0 0 1 0-1.5h6a.75.75 0 0 1 0 1.5m.75 3.75a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m0 4.5a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m4-12v15a2.25 2.25 0 0 1-2.25 2.25h-1.75v.5a.75.75 0 0 1-1.5 0v-.5h-4.5v.5a.75.75 0 0 1-1.5 0v-.5H6.5a2.25 2.25 0 0 1-2.25-2.25v-15A2.25 2.25 0 0 1 6.5 3.25h1.75v-2C8.25.56 8.81 0 9.5 0h5c.69 0 1.25.56 1.25 1.25v2h1.75a2.25 2.25 0 0 1 2.25 2.25m-10-2.25h4.5V1.5h-4.5zm8.5 2.25a.76.76 0 0 0-.75-.75h-11a.76.76 0 0 0-.75.75v15a.76.76 0 0 0 .75.75h11a.76.76 0 0 0 .75-.75z"></path></svg>
+                    <svg class="w-3 h-3 text-green-600 -mt-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12C23.992 5.376 18.624.008 12 0m6.927 8.2-6.845 9.289a1.01 1.01 0 0 1-1.43.188l-4.888-3.908a1 1 0 0 1 1.25-1.562l4.076 3.261 6.227-8.451a1 1 0 1 1 1.61 1.183"></path></svg>
+                  </div>
+                </div>
+                
+                <!-- Price and Info -->
+                <div class="mt-auto flex justify-between items-center">
+                  <div class="text-2xl font-bold text-blue-700">?{{res.price}}</div>
+                  
+                  <!-- Enhanced Tooltip -->
+                  <div class="relative">
+                    <button type="button" (mouseenter)="showPopup(i)" (mouseleave)="hidePopup(i)" class="text-gray-500 focus:outline-none hover:text-blue-600 transition-colors">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4M12 8h.01"></path>
+                      </svg>
+                    </button>
+                    
+                    <div *ngIf="popupStates[i]" class="absolute z-10 right-0 bottom-8 bg-white rounded-lg shadow-lg border border-gray-200 w-48 p-3 text-sm transform transition-all duration-200 ease-in-out">
+                      <div class="text-gray-700 font-medium mb-2">Price Comparison</div>
+                      <div class="space-y-2">
+                        <div class="flex justify-between">
+                          <span class="text-gray-600">Air_Irctc:</span>
+                          <span *ngIf="res.ai_price" class="font-semibold">?{{res.ai_price}}</span>
+                          <span *ngIf="!res.ai_price" class="text-gray-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-gray-600">Easemytrip:</span>
+                          <span *ngIf="res.emt_price" class="font-semibold">?{{res.emt_price}}</span>
+                          <span *ngIf="!res.emt_price" class="text-gray-400">-</span>
+                        </div>
+                        <div class="flex justify-between">
+                          <span class="text-gray-600">Magic Fares:</span>
+                          <span *ngIf="res.mf_price" class="font-semibold">?{{res.mf_price}}</span>
+                          <span *ngIf="!res.mf_price" class="text-gray-400">-</span>
+                        </div>
+                      </div>
+                      <div class="absolute -bottom-2 right-2 w-3 h-3 bg-white border-r border-b border-gray-200 transform rotate-45"></div>
+                    </div>
+                  </div>
+                </div>
+                
+                <!-- Select Button -->
+                <button class="mt-3 w-full py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                  Select
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+//
+// Add this to your component class
+
+// Property to track loading state
+isLoading: boolean = false;
+// Property to track current sort method
+sortBy: string = 'price';
+
+// Modified onSubmit method with loading state
+onSubmit() {
+  this.isLoading = true;
+  
+  // Simulate API call delay
+  setTimeout(() => {
+    // Your existing search logic here
+    // ...
+    
+    // End loading state after data is fetched
+    this.isLoading = false;
+  }, 1500); // Adjust timing as needed for your actual API call
+}
+
+// Modified sort method to track active sort
+sortRes(sortType: string) {
+  this.sortBy = sortType;
+  
+  // Your existing sort logic here
+  // ...
+}
+
+
+//
+<header class="bg-white shadow-sm">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8" aria-label="Global">
+      <div class="flex lg:flex-1">
+        <a href="#" class="-m-1.5 p-1.5">
+            <div class="flex flex-row items-center">
+              <img class="h-8 w-auto" src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=blue&shade=500" alt="">
+              <span class="mt-1 font-bold text-gray-900 ml-1">Sky</span>
+              <span class="mt-1 font-bold text-blue-600">Scraper</span>
+            </div>
+        </a>
+      </div>
+      <div class="hidden lg:flex lg:flex-1 lg:justify-end">
+        <a href="#" class="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+          Log Out <span aria-hidden="true">&rarr;</span>
+        </a>
+      </div>
+    </nav>
+</header>
+
+<div class="mt-4 flex flex-col">
+    <div class="mt-2 flex flex-row justify-center gap-0">
+    <form (ngSubmit)="onSubmit()">
+      <div class="inline-flex rounded-md shadow-sm gap-2" role="group">
+        <div class="inline-flex items-center w-[125px] relative">
+          <input [(ngModel)]="fro" type="text" name="from" class="w-[140px] px-4 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-l-3xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="From"/>
+        </div>
+        <div class="inline-flex items-center w-[125px] relative">
+          <input [(ngModel)]="to" type="text" name="to" class="w-[120px] px-4 py-2 text-sm font-medium text-gray-900 bg-white border-y border-gray-200 border-x-0 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" placeholder="To"/>
+        </div>
+        <div class="inline-flex items-center w-[125px] relative">
+          <input [(ngModel)]="date" type="date" name="date" class="w-[132px] px-4 py-2 text-sm font-medium text-gray-900 bg-white border-y border-gray-200 border-l-0 border-r focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"/>
+        </div>
+        <div class="inline-flex items-center w-[50px] relative">
+          <button type="submit" class="w-[60px] px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-r-3xl transition-colors focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2">
+            Go!
+          </button>
+        </div>
+      </div>
+    </form>
+    </div>
+    
+    <!-- Loading spinner - initially hidden -->
+    <div id="loader" class="hidden mt-8 flex justify-center">
+      <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <div class="flex relative">
+        <!-- Enhanced Filters Section -->
+        <div class="w-110 p-8 bg-white border border-gray-100 rounded-lg shadow-sm m-4">
+            <h3 class="text-lg font-bold mb-6 text-gray-800 border-b pb-2">Filters</h3>
+            
+            <div class="mb-6">
+                <h4 class="font-medium mb-3 text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Airlines
+                </h4>
+                <div class="space-y-2">
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors" *ngFor="let entry of tairlines | keyvalue">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange(entry.key,$event)" 
+                               [checked]="ischecked(entry.key)" />
+                        <span class="w-24 text-sm text-gray-700">{{entry.key}}</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{entry.value}}</span>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="mb-6">
+                <h4 class="font-medium mb-3 text-gray-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Flight Times
+                </h4>
+                
+                <h6 class="text-xs uppercase tracking-wide text-gray-500 font-semibold mt-4 mb-2">Departures</h6>
+                <div class="space-y-2">
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange1('1',$event)" 
+                               [checked]="ischecked1('1')" />
+                        <span class="w-24 text-sm text-gray-700">00:00 - 5:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur1[1]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange1('2',$event)" 
+                               [checked]="ischecked1('2')" />
+                        <span class="w-24 text-sm text-gray-700">06:00 - 11:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur1[2]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange1('3',$event)" 
+                               [checked]="ischecked1('3')" />
+                        <span class="w-24 text-sm text-gray-700">12:00 - 17:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur1[3]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange1('4',$event)" 
+                               [checked]="ischecked1('4')" />
+                        <span class="w-24 text-sm text-gray-700">18:00 - 23:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur1[4]}}</span>
+                    </label>
+                </div>
+                
+                <h6 class="text-xs uppercase tracking-wide text-gray-500 font-semibold mt-4 mb-2">Arrivals</h6>
+                <div class="space-y-2">
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange2('1',$event)" 
+                               [checked]="ischecked2('1')" />
+                        <span class="w-24 text-sm text-gray-700">00:00 - 5:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur2[1]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange2('2',$event)" 
+                               [checked]="ischecked2('2')" />
+                        <span class="w-24 text-sm text-gray-700">06:00 - 11:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur2[2]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange2('3',$event)" 
+                               [checked]="ischecked2('3')" />
+                        <span class="w-24 text-sm text-gray-700">12:00 - 17:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur2[3]}}</span>
+                    </label>
+                    <label class="flex items-center hover:bg-blue-50 p-2 rounded-md transition-colors">
+                        <input type="checkbox" class="mr-2 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" 
+                               (change)="onCheckBoxChange2('4',$event)" 
+                               [checked]="ischecked2('4')" />
+                        <span class="w-24 text-sm text-gray-700">18:00 - 23:59</span>
+                        <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full ml-2">{{tdur2[4]}}</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 mb-4 mt-4 ml-4">
+            <!-- Enhanced Sort Buttons -->
+            <div class="inline-flex rounded-lg shadow-sm mb-6" role="group">
+                <button (click)="sortRes('price')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-l-lg hover:bg-blue-50 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                    Price
+                </button>
+                <button (click)="sortRes('duration')" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-r-lg hover:bg-blue-50 hover:text-blue-700 focus:z-10 focus:ring-2 focus:ring-blue-500 focus:text-blue-700 transition-colors flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Duration
+                </button>
+            </div>
+
+            <div class="mt-3">
+                <div *ngFor="let res of results; let i = index">
+                    <div class="flex justify-start mt-4" *ngIf="sairlines.has(res.airline) && sdur1.has(tact1[i]) && sdur2.has(tact2[i])">
+                        <div class="flex w-full">
+                            <div class="block w-[475px] h-[150px] bg-white border border-gray-200 rounded-l-lg shadow-sm hover:shadow-md transition-shadow">
+                                <div class="w-[440px] h-[200px] relative">
+                                    <div class="w-[175px] h-[20px] bg-green-50 m-2 rounded-md" *ngIf="res.flex=='1'">
+                                        <span class="flex justify-center text-xs text-green-700 p-0.5 font-medium">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Flexible ticket available
+                                        </span>
+                                    </div>
+                                    <div class="flex flex-row">
+                                        <div>
+                                            <div class="w-[87px] flex flex-col items-center">
+                                                <img src={{res.img}} class="w-[30px] mt-4"/>
+                                                <span class="mt-2 text-xs text-gray-700">{{res.airline}}</span>         
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col w-[200px] m-4 ml-6">
+                                            <div class="font-bold text-lg">{{res.dept_time}}</div>
+                                            <div class="mb-1 text-xs text-gray-700">{{res.from}} � {{res.dept_date}}</div>
+                                            <div class="mt-2 w-[90px]">
+                                               <span class="text-xs text-gray-500">Air_Irctc:</span>
+                                               <span *ngIf="res.ai_price" class="ml-1 font-medium text-xs text-gray-700">?{{res.ai_price}}</span>
+                                               <span *ngIf="!res.ai_price" class="ml-1 font-medium text-xs text-gray-400">--</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mt-2 m-0 mb-5">
+                                            <img src="fmap.JPG" alt="" class="w-[130px]"/>
+                                            <span class="mt-1 text-xs text-center ml-8 text-gray-700 font-medium">{{res.duration}}</span>
+                                            <div class="mt-2 w-[118px]">
+                                                <span class="text-xs text-gray-500">Easemytrip:</span>
+                                                <span *ngIf="res.emt_price" class="ml-1 font-medium text-xs text-gray-700">?{{res.emt_price}}</span>
+                                                <span *ngIf="!res.emt_price" class="ml-1 font-medium text-xs text-gray-400">--</span>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex flex-col w-[209px] m-4">
+                                            <div class="font-bold text-lg">{{res.arriv_time}}</div>
+                                            <div class="mb-1 text-xs text-gray-700">{{res.to}} � {{res.arriv_date}}</div>
+                                            <div class="mt-2 w-[200px]">
+                                                <span class="text-xs text-gray-500">Magic Fares:</span>
+                                                <span *ngIf="res.mf_price" class="ml-1 font-medium text-xs text-gray-700">?{{res.mf_price}}</span>
+                                                <span *ngIf="!res.mf_price" class="ml-1 font-medium text-xs text-gray-400">--</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                
+                            <div class="w-[180px] h-[150px] p-4 bg-white border border-gray-200 rounded-r-lg shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+                                <div class="flex justify-end space-x-2">
+                                    <div *ngIf="res.bag[0]=='1'" class="flex flex-col items-center">  
+                                        <svg class="w-[20px] text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 12.75H9a1.76 1.76 0 0 0-1.75 1.75v4A1.76 1.76 0 0 0 9 20.25h6a1.76 1.76 0 0 0 1.75-1.75v-4A1.76 1.76 0 0 0 15 12.75m-6 1.5h6a.25.25 0 0 1 .25.25v.62h-6.5v-.62a.25.25 0 0 1 .25-.25m6 4.5H9a.25.25 0 0 1-.25-.25v-1.88h3.5v.26a.75.75 0 0 0 1.5 0v-.26h1.5v1.88a.25.25 0 0 1-.25.25m.69-14.33a3.73 3.73 0 0 0-7.38 0A4.74 4.74 0 0 0 4.75 9v11.5A2.25 2.25 0 0 0 7 22.75h10a2.25 2.25 0 0 0 2.25-2.25V9a4.74 4.74 0 0 0-3.56-4.58M12 2.75a2.24 2.24 0 0 1 2.11 1.5H9.89A2.24 2.24 0 0 1 12 2.75m5.75 17.75a.76.76 0 0 1-.75.75H7a.76.76 0 0 1-.75-.75V9A3.26 3.26 0 0 1 9.5 5.75h5A3.26 3.26 0 0 1 17.75 9z"></path></svg>
+                                        <span class="text-xs text-green-600 mt-1">Included</span>
+                                    </div>
+                                    <div *ngIf="res.bag[0]=='2' || res.bag[1]=='2'" class="flex flex-col items-center">
+                                        <svg class="w-[20px] text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 14.75H9a.75.75 0 0 1 0-1.5h6a.75.75 0 0 1 0 1.5m.75 3.25a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m3-6.5v9a2.25 2.25 0 0 1-2.25 2.25h-.75v.5a.75.75 0 0 1-1.5 0v-.5h-4.5v.5a.75.75 0 0 1-1.5 0v-.5H7.5a2.25 2.25 0 0 1-2.25-2.25v-9A2.25 2.25 0 0 1 7.5 9.25h1.75v-8C9.25.56 9.81 0 10.5 0h3c.69 0 1.25.56 1.25 1.25v8h1.75a2.25 2.25 0 0 1 2.25 2.25m-8-2.25h2.5V1.5h-2.5zm6.5 2.25a.76.76 0 0 0-.75-.75h-9a.76.76 0 0 0-.75.75v9a.76.76 0 0 0 .75.75h9a.76.76 0 0 0 .75-.75z"></path></svg>
+                                        <span class="text-xs text-green-600 mt-1">Included</span>
+                                    </div>
+                                    <div *ngIf="res.bag[0]=='3' || res.bag[1]=='3' || res.bag[2]=='3'" class="flex flex-col items-center">
+                                        <svg class="w-[20px] text-gray-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M15 9.25H9a.75.75 0 0 1 0-1.5h6a.75.75 0 0 1 0 1.5m.75 3.75a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m0 4.5a.76.76 0 0 0-.75-.75H9a.75.75 0 0 0 0 1.5h6a.76.76 0 0 0 .75-.75m4-12v15a2.25 2.25 0 0 1-2.25 2.25h-1.75v.5a.75.75 0 0 1-1.5 0v-.5h-4.5v.5a.75.75 0 0 1-1.5 0v-.5H6.5a2.25 2.25 0 0 1-2.25-2.25v-15A2.25 2.25 0 0 1 6.5 3.25h1.75v-2C8.25.56 8.81 0 9.5 0h5c.69 0 1.25.56 1.25 1.25v2h1.75a2.25 2.25 0 0 1 2.25 2.25m-10-2.25h4.5V1.5h-4.5zm8.5 2.25a.76.76 0 0 0-.75-.75h-11a.76.76 0 0 0-.75.75v15a.76.76 0 0 0 .75.75h11a.76.76 0 0 0 .75-.75z"></path></svg>
+                                        <span class="text-xs text-green-600 mt-1">Included</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex justify-between items-center mt-4">
+                                    <p class="font-bold text-2xl text-blue-600">?{{res.price}}</p>
+                                    <div class="relative">
+                                        <button (mouseenter)="showPopup(i)" (mouseleave)="hidePopup(i)" class="w-6 h-6 flex items-center justify-center rounded-full hover:bg-blue-50 transition-colors">
+                                            <svg class="w-5 h-5 text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                                                <path d="M9.75 9a2.25 2.25 0 1 1 3 2.122 2.25 2.25 0 0 0-1.5 2.122v1.006a.75.75 0 0 0 1.5 0v-1.006c0-.318.2-.602.5-.708A3.75 3.75 0 1 0 8.25 9a.75.75 0 1 0 1.5 0M12 16.5a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25.75.75 0 0 0 0 1.5.375.375 0 1 1 0-.75.375.375 0 0 1 0 .75.75.75 0 0 0 0-1.5M22.5 12c0 5.799-4.701 10.5-10.5 10.5S1.5 17.799 1.5 12 6.201 1.5 12 1.5 22.5 6.201 22.5 12m1.5 0c0-6.627-5.373-12-12-12S0 5.373 0 12s5.373 12 12 12 12-5.373 12-12"></path>
+                                            </svg>
+                                        </button>
+                                        
+                                        <!-- Enhanced price popup -->
+                                        <div *ngIf="popupStates[i]" class="absolute z-10 right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-3 w-48 text-sm">
+                                            <div class="space-y-2">
+                                                <h3 class="font-semibold text-gray-800 border-b pb-1 mb-2">Price Comparison</h3>
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-gray-600">Air_Irctc:</span>
+                                                    <span *ngIf="res.ai_price" class="font-semibold">?{{res.ai_price}}</span>
+                                                    <span *ngIf="!res.ai_price" class="text-gray-400">--</span>
+                                                </div>
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-gray-600">Easemytrip:</span>
+                                                    <span *ngIf="res.emt_price" class="font-semibold">?{{res.emt_price}}</span>
+                                                    <span *ngIf="!res.emt_price" class="text-gray-400">--</span>
+                                                </div>
+                                                <div class="flex justify-between items-center">
+                                                    <span class="text-gray-600">Magic Fares:</span>
+                                                    <span *ngIf="res.mf_price" class="font-semibold">?{{res.mf_price}}</span>
+                                                    <span *ngIf="!res.mf_price" class="text-gray-400">--</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+// Add these methods to your component class
+
+// Show loader when submitting form or performing operations
+showLoader() {
+  const loader = document.getElementById('loader');
+  if (loader) {
+    loader.classList.remove('hidden');
+  }
+}
+
+// Hide loader when operation completes
+hideLoader() {}
+// 1st
