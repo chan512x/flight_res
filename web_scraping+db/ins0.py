@@ -5,13 +5,13 @@ from datetime import datetime, timedelta
 conn = snowflake.connector.connect(
     user="chan",
     password="Chandanlseg1021",
-    account="WQBSYUO-PU72483",
+    account="VAMNLGV-QF92343",
     autocommit=False,
     database="FLIGHTS",
-    schema="MAIN1"
+    schema="MAIN0"
     )
-start_date = datetime(2025, 4, 1)
-end_date = datetime(2025, 4, 10)
+start_date = datetime(2025, 4, 14)
+end_date = datetime(2025, 4, 20)
 cur=conn.cursor()
 try:
     current_date = start_date
@@ -49,16 +49,19 @@ try:
                             fid+=c
                         else:
                             sid+=c
+                    print(id)
                     if fl==1:
                             temp=cur.execute('''SELECT * FROM FSCHEDULE WHERE flight_id=%s AND whe=%s AND dept=%s''',(fid,date_str,dept)).fetchone()
                             if temp:
                                  cur.execute('''UPDATE FSCHEDULE SET ai_price=%s WHERE flight_id=%s AND whe=%s AND dept=%s''',(price, fid, date_str, dept))
                             else:
+                                print(fid)
                                 cur.execute('''INSERT INTO FSCHEDULE (flight_id,airline,whe,dept,fro,from_code,arrival,toooo,to_code,duration,stops,ai_price) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''',(fid,airline,whe,dept,fro,from_code,arriv,to,to_code,dur,stop,price,))
                             temp=cur.execute('''SELECT * FROM FSCHEDULE WHERE flight_id=%s AND whe=%s AND dept=%s''',(sid,date_str,dept)).fetchone()
                             if temp:
                                  cur.execute('''UPDATE FSCHEDULE SET ai_price=%s WHERE flight_id=%s AND whe=%s AND dept=%s''',(price, sid, date_str, dept))
                             else:
+                                print(sid)
                                 cur.execute('''INSERT INTO FSCHEDULE (flight_id,airline,whe,dept,fro,from_code,arrival,toooo,to_code,duration,stops,ai_price) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)''',(sid,airline,whe,dept,fro,from_code,arriv,to,to_code,dur,stop,price,))
                             
                     else:

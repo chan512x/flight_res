@@ -5,13 +5,13 @@ from datetime import datetime, timedelta
 conn = snowflake.connector.connect(
     user="chan",
     password="Chandanlseg1021",
-    account="WQBSYUO-PU72483",
+    account="VAMNLGV-QF92343",
     autocommit=False,
     database="FLIGHTS",
-    schema="MAIN1"
+    schema="MAIN0"
     )
-start_date = datetime(2025, 4, 1)
-end_date = datetime(2025, 4, 10)
+start_date = datetime(2025, 4, 14)
+end_date = datetime(2025, 4, 20)
 cur=conn.cursor()
 try:
     current_date = start_date

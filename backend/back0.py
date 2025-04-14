@@ -30,7 +30,7 @@ conn = snowflake.connector.connect(
     account=os.environ['acc'],
     autocommit=False,
     database="FLIGHTS",
-    schema="MAIN1"
+    schema="MAIN0"
 )   
 cur = conn.cursor()
 def predictor(cf_date):
@@ -444,6 +444,7 @@ def book():
     print(sf['id'])
     cur1.execute('''SELECT BID FROM FBOOKINGS WHERE FLIGHT_ID=%s AND DEPT_DATE=%s AND DEPT_TIME=%s''',(sf['id'],sf['dept_date'],sf['dept_time'],))
     temp=cur1.fetchone()
+    timestamp_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if temp is not None:
         bid=cur1[0]
     else:
@@ -460,9 +461,15 @@ def book():
             sf['id'], sf['dept_time'], sf['dept_date'], sf['from'], sf['to'],
             sf['type'], sf['duration'], sf['arriv_time'], sf['arriv_date'],
             sf['airline'], sf['bag'], sf['ai_price'], sf['emt_price'], sf['mf_price'],
-            sf['price'], ap, sf['best'], sf['flex'], datetime.now()
+            sf['price'], ap, sf['best'], sf['flex'], timestamp_str
         )
     )
+        print((
+    sf['id'], sf['dept_time'], sf['dept_date'], sf['from'], sf['to'],
+    sf['type'], sf['duration'], sf['arriv_time'], sf['arriv_date'],
+    sf['airline'], sf['bag'], sf['ai_price'], sf['emt_price'], sf['mf_price'],
+    sf['price'], ap, sf['best'], sf['flex'], datetime.now()
+))
         bid = cur1.fetchone()[0]
     cur1.execute(
     '''INSERT INTO UBOOKINGS (UID, BID) VALUES (%s, %s)''',
@@ -489,7 +496,8 @@ def fbook():
     (user,)
     )
     bookings = cur1.fetchall()
-    formatted_bookings = []
+    formatted_bookings = [] 
+    print(bookings)
     
     # Process each booking row
     for row in bookings:
@@ -498,25 +506,25 @@ def fbook():
         # Adjust indices based on your actual query results
         
         temp = {
-            'FLIGHT_ID': row[0],
-            'DEPT_TIME': row[1],
-            'DEPT_DATE': row[2],
-            'FRO': row[3],
-            'TOOOO': row[4],
-            'TYPE': row[5],
-            'DURATION': row[6],
-            'ARRIV_TIME': row[7],
-            'ARRIV_DATE': row[8],
-            'AIRLINE': row[9],
-            'BAG': row[10],
-            'AI_PRICE': row[11],
-            'EMT_PRICE': row[12],
-            'MF_PRICE': row[13],
-            'PRICE': row[14],
-            'PPRICE': row[15],
-            'BEST': row[16],
-            'FLEX': row[17],
-            'TSTAMP': str(row[18]) if row[18] else None  # Convert datetime to string if needed
+            'FLIGHT_ID': row[1],
+            'DEPT_TIME': row[2],
+            'DEPT_DATE': row[3],
+            'FRO': row[4],
+            'TOOOO': row[5],
+            'TYPE': row[6],
+            'DURATION': row[7],
+            'ARRIV_TIME': row[8],
+            'ARRIV_DATE': row[9],
+            'AIRLINE': row[10],
+            'BAG': row[11],
+            'AI_PRICE': row[12],
+            'EMT_PRICE': row[13],
+            'MF_PRICE': row[14],
+            'PRICE': row[15],
+            'PPRICE': row[16],
+            'BEST': row[17],
+            'FLEX': row[18],
+            'TSTAMP': str(row[19]) if row[18] else None  # Convert datetime to string if needed
         }
         
         formatted_bookings.append(temp)

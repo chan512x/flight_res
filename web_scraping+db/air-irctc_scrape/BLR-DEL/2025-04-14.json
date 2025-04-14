@@ -313,19 +313,6 @@
     },
     {
         "airline": "Air India",
-        "flight_id": "AI-428",
-        "departure": "14:30",
-        "from": "Bengaluru",
-        "from_code": "BLR",
-        "arrival": "17:25",
-        "to": "New Delhi",
-        "to_code": "DEL",
-        "duration": "2h 55m",
-        "stops": "0 Stop",
-        "price": "\u20b9 7521"
-    },
-    {
-        "airline": "Air India",
         "flight_id": "AI-2665",
         "departure": "19:20",
         "from": "Bengaluru",
@@ -403,19 +390,6 @@
         "price": "\u20b9 7836"
     },
     {
-        "airline": "Air India",
-        "flight_id": "AI-2810",
-        "departure": "06:40",
-        "from": "Bengaluru",
-        "from_code": "BLR",
-        "arrival": "09:40",
-        "to": "New Delhi",
-        "to_code": "DEL",
-        "duration": "3h",
-        "stops": "0 Stop",
-        "price": "\u20b9 7836"
-    },
-    {
         "airline": "IndiGo",
         "flight_id": "6E-959/6E-2374",
         "departure": "07:30",
@@ -464,32 +438,6 @@
         "to": "New Delhi",
         "to_code": "DEL",
         "duration": "2h 50m",
-        "stops": "0 Stop",
-        "price": "\u20b9 8256"
-    },
-    {
-        "airline": "Air India",
-        "flight_id": "AI-2406",
-        "departure": "11:10",
-        "from": "Bengaluru",
-        "from_code": "BLR",
-        "arrival": "14:00",
-        "to": "New Delhi",
-        "to_code": "DEL",
-        "duration": "2h 50m",
-        "stops": "0 Stop",
-        "price": "\u20b9 8256"
-    },
-    {
-        "airline": "Air India",
-        "flight_id": "AI-2511",
-        "departure": "15:30",
-        "from": "Bengaluru",
-        "from_code": "BLR",
-        "arrival": "18:30",
-        "to": "New Delhi",
-        "to_code": "DEL",
-        "duration": "3h",
         "stops": "0 Stop",
         "price": "\u20b9 8256"
     },
