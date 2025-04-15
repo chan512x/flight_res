@@ -446,7 +446,7 @@ def book():
     temp=cur1.fetchone()
     timestamp_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     if temp is not None:
-        bid=cur1[0]
+        bid=temp[0]
     else:
         cur1.execute(
         '''
@@ -498,12 +498,21 @@ def fbook():
     bookings = cur1.fetchall()
     formatted_bookings = [] 
     print(bookings)
-    
+    dt=datetime.now()
     # Process each booking row
     for row in bookings:
         # Extract all necessary fields
         # Assuming the column order matches your needed fields
         # Adjust indices based on your actual query results
+        fl=False
+        fl1=False
+        at_date=row[3]+" 2025"
+        adate=datetime.strptime(at_date,"%d %b %Y")
+        pp=adate.day-dt.day+1
+        if pp>=1:
+            fl=True
+            fl1=True
+        
         
         temp = {
             'FLIGHT_ID': row[1],
@@ -524,13 +533,128 @@ def fbook():
             'PPRICE': row[16],
             'BEST': row[17],
             'FLEX': row[18],
-            'TSTAMP': str(row[19]) if row[18] else None  # Convert datetime to string if needed
+            'TSTAMP': str(row[19]) if row[19] else None,
+            'CANCELLABLE':str(fl),
+            'UPCOMING':str(fl1),
+            'BID':str(row[0])
         }
         
         formatted_bookings.append(temp)
     
     print(formatted_bookings)
     return jsonify(formatted_bookings), 201
+
+@app.route("/cancel",methods=['POST'])
+@jwt_required()
+def cancel():
+    data=request.get_json()
+    bid=data['bid']
+    user=get_jwt_identity()
+    cur1.execute('''DELETE FROM UBOOKINGS WHERE BID=%s AND UID=%s''',(bid,user,))
+    return jsonify("success"),201
+
+@app.route("/graph",methods=['POST'])
+@jwt_required()
+def graph():
+    TEMP1=cur.execute('''
+         SELECT AVG(MAXIMUM) FROM (SELECT WHE, MAX(AI_PRICE) AS MAXIMUM FROM FSCHEDULE GROUP BY WHE)
+     ''').fetchall() 
+    print(TEMP1)
+    # print(TEMP1)
+    TEMP2=cur.execute('''
+        SELECT AVG(MAXIMUM) FROM (SELECT WHE, MAX(EMT_PRICE) AS MAXIMUM FROM FSCHEDULE GROUP BY WHE)
+    ''').fetchall()
+    print(TEMP2)
+    TEMP3=cur.execute('''
+        SELECT AVG(MAXIMUM) FROM (SELECT WHE, MAX(MF_PRICE) AS MAXIMUM FROM FSCHEDULE GROUP BY WHE)
+    ''').fetchall()
+    print(TEMP3)
+
+    air_irctc=cur.execute('''SELECT WHE, MIN(AI_PRICE) AS MINIMUM FROM FSCHEDULE GROUP BY WHE
+     ''').fetchall() 
+    emt=cur.execute('''
+        SELECT WHE, MIN(EMT_PRICE) AS MINIMUM FROM FSCHEDULE GROUP BY WHE
+    ''').fetchall()
+    mf=cur.execute('''SELECT WHE, MIN(MF_PRICE) AS MINIMUM FROM FSCHEDULE GROUP BY WHE
+    ''').fetchall()
+    cday=datetime.now()
+    mairtc=[]
+    memt=[]
+    mmf=[]
+    pp=4
+    delta=pp+1
+    for i in range(len(air_irctc)):
+        cf_date1=mf[i][0]
+        
+        sprice0=0
+        sprice1=0
+        sprice2=0
+        ccft=0
+        close=10000
+        wcft=1000   
+        if delta<=5 and delta>=0:
+            sprice0=TEMP1[0][0]
+            sprice1=TEMP2[0][0]
+            sprice2=TEMP3[0][0]
+            if delta==0:
+                ccft=0.2
+            elif delta==1:
+                ccft=0.15
+            elif delta==2:
+                ccft=0.10
+            elif delta==3:
+                ccft=0.075
+            else:
+                ccft=0.05
+                sprice0+=close*ccft
+                sprice1+=close*ccft
+                sprice2+=close*ccft
+        else:
+            sprice0=air_irctc[i][1]
+            sprice1=emt[i][1]
+            sprice2=mf[i][1]
+            
+        delta-=1
+        try:
+            day=cf_date1.strftime('%a')
+            if day=='Fri' or day=='Sat' or day=='Sun':
+                sprice0+=wcft
+                sprice1+=wcft
+                sprice2+=wcft
+            #handle hits
+            hcft=0
+            sprice0+=hcft
+            sprice1+=hcft
+            sprice2+=hcft
+            extra=0
+            if delta<=0:
+                sprice0+=air_irctc[i][1]
+                sprice1+=emt[i][1]
+                sprice2+=mf[i][1]
+            act=[]
+            act.append(air_irctc[i][0])
+            act.append(sprice0)
+            mct=[]
+            mct.append(emt[i][0])
+            mct.append(sprice1)
+            mft=[]
+            mft.append(mf[i][0])
+            mft.append(sprice2)
+            # mf[i][0]=sprice2
+            # emt[i][0]=sprice1
+            # air_irctc[i][0]=sprice1
+            mairtc.append(act)
+            memt.append(mct)
+            mmf.append(mft)
+        except Exception as e:
+            temp=[]
+            print("ye")
+            print(e)
+            return temp
+    print(air_irctc)
+    print(mairtc)
+    
+    return jsonify("success"),201
 if __name__ == "__main__":
 
     app.run(debug=True)
